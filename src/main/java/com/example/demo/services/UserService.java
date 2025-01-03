@@ -63,7 +63,7 @@ public class UserService {
             User user = foundUser.get();
             user.setName(name);
             user.setEmail(email);
-            User savedUser = userRepository.save(user);
+            userRepository.save(user);
             return true;
         } else {
             return false;
