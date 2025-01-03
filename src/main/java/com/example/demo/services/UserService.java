@@ -26,11 +26,22 @@ public class UserService {
         this.bookRepository = bookRepository;
     }
 
+    /**
+     * Находит пользователя по его ID и возвращает объект DTO.
+     *
+     * @param id идентификатор пользователя.
+     * @return объект UserDTO, содержащий информацию о пользователе, или null, если пользователь не найден.
+     */
     public UserDTO findById(Long id) {
         Optional<User> foundUser = userRepository.findById(id);
         return foundUser.map(this::toUserDTO).orElse(null);
     }
 
+    /**
+     * Возвращает список всех пользователей в виде списка DTO.
+     *
+     * @return список объектов UserDTO, представляющих всех пользователей.
+     */
     public List<UserDTO> findAll() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -38,6 +49,13 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Создает нового пользователя с заданными параметрами и возвращает его в виде DTO.
+     *
+     * @param name  имя пользователя.
+     * @param email email пользователя.
+     * @return объект UserDTO, содержащий информацию о созданном пользователе.
+     */
     public UserDTO createUser(String name, String email) {
         User user = new User();
         user.setName(name);
@@ -46,10 +64,16 @@ public class UserService {
         return toUserDTO(savedUser);
     }
 
+    /**
+     * Удаляет пользователя по его ID.
+     *
+     * @param id идентификатор пользователя, которого нужно удалить.
+     * @return true, если пользователь был удален, false, если пользователь не найден.
+     */
     public boolean deleteUser(Long id) {
         Optional<User> foundUser = userRepository.findById(id);
 
-        if(foundUser.isPresent()) {
+        if (foundUser.isPresent()) {
             userRepository.delete(foundUser.get());
             return true;
         } else {
@@ -57,9 +81,17 @@ public class UserService {
         }
     }
 
+    /**
+     * Обновляет информацию о пользователе.
+     *
+     * @param id    идентификатор пользователя, информацию о котором нужно обновить.
+     * @param name  новое имя пользователя.
+     * @param email новый email пользователя.
+     * @return true, если пользователь был обновлен, false, если пользователь не найден.
+     */
     public boolean updateUser(Long id, String name, String email) {
         Optional<User> foundUser = userRepository.findById(id);
-        if(foundUser.isPresent()) {
+        if (foundUser.isPresent()) {
             User user = foundUser.get();
             user.setName(name);
             user.setEmail(email);
@@ -70,6 +102,13 @@ public class UserService {
         }
     }
 
+    /**
+     * Добавляет книгу пользователю.
+     *
+     * @param userId идентификатор пользователя, которому будет добавлена книга.
+     * @param bookId идентификатор книги, которую нужно добавить пользователю.
+     * @return true, если книга была успешно добавлена пользователю.
+     */
     public boolean addBookToUser(Long userId, Long bookId) {
         User user = getUserById(userId);
         Book book = getBookById(bookId);
@@ -80,6 +119,14 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Удаляет книгу у пользователя.
+     *
+     * @param userId идентификатор пользователя, у которого нужно удалить книгу.
+     * @param bookId идентификатор книги, которую нужно удалить у пользователя.
+     * @return true, если книга была успешно удалена у пользователя.
+     * @throws IllegalStateException если книга не принадлежит пользователю.
+     */
     public boolean removeBookFromUser(Long userId, Long bookId) {
         User user = getUserById(userId);
         Book book = getBookById(bookId);
@@ -94,8 +141,12 @@ public class UserService {
         return true;
     }
 
-
-
+    /**
+     * Преобразует объект User в объект UserDTO.
+     *
+     * @param user объект User, который нужно преобразовать.
+     * @return объект UserDTO, содержащий информацию о пользователе.
+     */
     private UserDTO toUserDTO(User user) {
         if (user == null) {
             return null;
@@ -107,11 +158,25 @@ public class UserService {
         return new UserDTO(user.getId(), user.getName(), user.getEmail(), bookDTOs);
     }
 
+    /**
+     * Находит пользователя по его ID.
+     *
+     * @param userId идентификатор пользователя.
+     * @return объект User, если пользователь найден.
+     * @throws UserNotFoundException если пользователь с данным ID не найден.
+     */
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
     }
 
+    /**
+     * Находит книгу по ее ID.
+     *
+     * @param bookId идентификатор книги.
+     * @return объект Book, если книга найдена.
+     * @throws BookNotFoundException если книга с данным ID не найдена.
+     */
     private Book getBookById(Long bookId) {
         return bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book with ID " + bookId + " not found"));
